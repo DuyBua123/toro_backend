@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+
+  datasource:
+    url: ${TORO_DB_URL:jdbc:postgresql://localhost:5432/toro_db}
+    username: ${TORO_DB_USERNAME:root}
+    password: ${TORO_DB_PASSWORD:dev}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  cloud:
+    config:
+      server:
+        awss3:
+          region: ap-southeast-1
+          bucket: amazing-kids-learning-bucket
+
+app:
+  jwt:
+    issuer: amazing-kids-learning
+    secret: qv!!a?6ct7tM;2{:tkJ*vvP(4P7f}%PZ
+    access-token-ttl-minutes: 15
+    refresh-token-ttl-days: 7

@@ -1,0 +1,25 @@
+
+services:
+
+  toro_db:
+    image: postgres:17.10
+    container_name: toro_db
+    ports:
+      - "5432:5432"
+    restart: no
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: toro_db
+    volumes:
+      - toro_db_data:/var/lib/postgresql/data
+    networks:
+      - toro_network
+
+volumes:
+  toro_db_data:
+
+networks:
+  toro_network:
+    name: toro_network
+    driver: bridge
