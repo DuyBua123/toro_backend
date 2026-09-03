@@ -1,6 +1,7 @@
 package com.toro.backend.infrastructure.security.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -31,6 +32,16 @@ public class JwtService {
     }
 
 
+
+    public Instant generateAccessTokenExpiresAt() {
+        return Instant.now()
+                .plus(Duration.ofMinutes(properties.accessTokenTtlMinutes()));
+    }
+
+    public Instant generateRefreshTokenExpiresAt() {
+        return Instant.now()
+                .plus(Duration.ofDays(properties.refreshTokenTtlDays()));
+    }
 
     public String generateAccessToken(User user, Instant now, Instant expiresAt) {
         return Jwts.builder()
