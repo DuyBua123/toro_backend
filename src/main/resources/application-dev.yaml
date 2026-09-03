@@ -23,6 +23,6 @@ spring:
 app:
   jwt:
     issuer: toro
-    secret: t+XM1I+z9utvvDpeRBL7uqN5exp5ov2d4XG8qS3XzPQ=
+    secret: ${TORO_JWT_SECRET:t+XM1I+z9utvvDpeRBL7uqN5exp5ov2d4XG8qS3XzPQ=}
     access-token-ttl-minutes: 15
     refresh-token-ttl-days: 7
