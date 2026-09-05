@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 ex.getMessage(),
-                "INVALID_REFRESH_TOKEN",
+                "UNAUTHORIZED_ERROR",
                 ex.getMessage());
 
         return ResponseEntity

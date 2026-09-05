@@ -48,6 +48,8 @@ public class RefreshTokenUseCase {
 
         // CASE 3.1
         if (accessToken == null | accessToken.isBlank()) {
+            System.out.println("Issue new Access Token When Page Refresh!!!!");
+
             Instant currentAccessTokenExpiresAt = currentLoginSession.getAccessExpiresAt();
             String newAccessToken = jwtService.generateAccessToken(
                 currentLoginSession.getUser(), 
@@ -64,6 +66,8 @@ public class RefreshTokenUseCase {
         }
 
         // CASE 3.2
+        System.out.println("Issue new Access Token AND Refresh Token when Acess Token EXPIRED!!!!");
+
         Instant now = Instant.now();
 
         Instant accessTokenExpiresAt =

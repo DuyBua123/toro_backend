@@ -29,7 +29,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         FailureResponse<String> error = FailureResponse.failure(
                 "User is not authenticated",
-                "UNAUTHENTICATED",
+                "ACCESS_TOKEN_INVALID",
                 ex.getMessage()
         );
 
