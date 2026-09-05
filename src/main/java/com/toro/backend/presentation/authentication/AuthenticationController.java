@@ -8,16 +8,19 @@ import com.toro.backend.application.authentication.login.LoginUseCase;
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenResult;
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
+import com.toro.backend.infrastructure.exception.UnauthenticatedException;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
+import com.toro.backend.presentation.authentication.request.RefreshTokenRequest;
 import com.toro.backend.presentation.authentication.response.LoginResponse;
 import com.toro.backend.presentation.authentication.response.RefreshTokenResponse;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.springframework.boot.web.server.Cookie.SameSite;
 import org.springframework.http.HttpHeaders;
@@ -67,21 +70,29 @@ public class AuthenticationController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<SuccessResponse<RefreshTokenResponse>> refreshToken(
-            @CookieValue(
-                name = "refreshToken",
-                required = false
-            ) String refreshToken
+        @RequestBody RefreshTokenRequest request,
+        @CookieValue(
+            name = "refreshToken",
+            required = false
+        ) String refreshToken
     ) {
 
-        RefreshTokenResult result = refreshTokenUseCase.execute(refreshToken);
+        Optional<RefreshTokenResult> result = refreshTokenUseCase
+            .execute(request.accessToken(), refreshToken);
+
+        if (!result.isPresent()) {
+            // refreshToken cookie is automatically removed when EXPIRED
+
+            throw new InvalidRefreshTokenException("Login Session is Expired");
+        }
 
         ResponseCookie refreshTokenCookie = ResponseCookie
-            .from("refreshToken", result.refreshToken())
+            .from("refreshToken", result.get().refreshToken())
             .httpOnly(true)
             .secure(false) 
             .sameSite(SameSite.LAX.toString())
             .path("/api/auth/refresh-token")
-            .maxAge(Duration.between(Instant.now(), result.refreshTokenExpiresAt()))
+            .maxAge(Duration.between(Instant.now(), result.get().refreshTokenExpiresAt()))
             .build();
         
         return ResponseEntity
@@ -89,8 +100,8 @@ public class AuthenticationController {
             .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(
                 SuccessResponse.success(
-                    "Login successfully",
-                    new RefreshTokenResponse(result.accessToken())
+                    "Refresh token successfully",
+                    new RefreshTokenResponse(result.get().accessToken())
                 )
             );
     }

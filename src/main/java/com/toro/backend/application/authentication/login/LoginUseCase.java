@@ -35,23 +35,22 @@ public class LoginUseCase {
         Instant refreshTokenExpiresAt =
             jwtService.generateRefreshTokenExpiresAt();
 
+        String accessToken = jwtService.generateAccessToken(
+                user,
+                Instant.now(),
+                accessTokenExpiresAt
+        );
+
+        String refreshToken = jwtService.generateRefreshToken();
+        String hashedRefreshToken = jwtService.hashRefreshToken(refreshToken);
+
         // Create / rotate login session
-        LoginSession loginSession =
-                createLoginSession(user, refreshTokenExpiresAt);
+        createLoginSession(user, hashedRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
 
         
         return new LoginResult(
-                jwtService.generateAccessToken(
-                        user,
-                        Instant.now(),
-                        accessTokenExpiresAt
-                ),
-                jwtService.generateRefreshToken(
-                        user,
-                        loginSession.getJti(),
-                        Instant.now(),
-                        refreshTokenExpiresAt
-                ),
+                accessToken,
+                refreshToken,
                 refreshTokenExpiresAt
         );
     }
@@ -60,29 +59,39 @@ public class LoginUseCase {
     // PRIVATE METHODS
     private LoginSession createLoginSession(
             User user,
-            Instant expiresAt
+            String hashedRefreshToken,
+            Instant accessExpiresAt,
+            Instant refreshExpiresAt
     ) {
 
-        loginSessionRepository
+        LoginSession loginSession = loginSessionRepository
                 .findFirstByUserIdAndRevokedReasonIsNull(user.getId())
-                .ifPresent(previousSession -> {
-                    previousSession.setRevokedReason(
-                            RevokedReason.LOGIN_ROTATION
-                    );
-                    previousSession.setRevokedAt(Instant.now());
+                .map(previousSession -> {
 
-                    loginSessionRepository.save(previousSession);
+                        previousSession.setHashedRefreshToken(hashedRefreshToken);
+                        previousSession.setAccessExpiresAt(accessExpiresAt);
+                        previousSession.setRefreshExpiresAt(refreshExpiresAt);
+
+                        loginSessionRepository.save(previousSession);
+
+                        return previousSession;
+                })
+                .orElseGet(() -> {
+                        LoginSession newSession = new LoginSession();
+                        
+                        newSession.setUser(user);
+                        newSession.setHashedRefreshToken(hashedRefreshToken);
+                        newSession.setAccessExpiresAt(accessExpiresAt);
+                        newSession.setRefreshExpiresAt(refreshExpiresAt);
+                        newSession.setRevokedReason(null);
+                        newSession.setRevokedAt(null);
+
+                        loginSessionRepository.save(newSession);
+
+                        return newSession;
                 });
 
-        LoginSession loginSession = new LoginSession();
-
-        loginSession.setUser(user);
-        loginSession.setJti(jwtService.generateJti());
-        loginSession.setExpiresAt(expiresAt);
-        loginSession.setRevokedReason(null);
-        loginSession.setRevokedAt(null);
-
-        return loginSessionRepository.save(loginSession);
+                return loginSession;
     }
 
 }

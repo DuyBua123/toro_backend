@@ -1,8 +1,5 @@
 package com.toro.backend.application.authentication.refresh_token;
 
-import java.time.Instant;
-import java.util.Date;
-
 import org.springframework.stereotype.Component;
 
 import com.toro.backend.infrastructure.database.models.LoginSession;
@@ -10,8 +7,6 @@ import com.toro.backend.infrastructure.database.repository.LoginSessionRepositor
 import com.toro.backend.infrastructure.exception.BusinessValidationException;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -24,101 +19,45 @@ public class RefreshTokenValidator {
 
     public LoginSession validate(String refreshToken) {
 
-        // 1. Ensure refresh token exists
+        // 1. Basic validation
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BusinessValidationException(
-                    "Refresh token not found"
-            );
+            System.out.println("Invalid refresh token: Token is missing");
+            throw new BusinessValidationException("Invalid refresh token");
         }
 
-        Claims claims;
+        // 2. Hash the provided opaque token
+        String hashedRefreshToken;
 
         try {
-
-            // 2. Validate JWT:
-            // - Signature
-            // - Issuer
-            // - Expiration
-            claims = jwtService.parseClaims(refreshToken);
-
-        } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("JWT Exception: " + e.getMessage());
-            throw new BusinessValidationException("Refresh token invalid");
+            hashedRefreshToken = jwtService.hashRefreshToken(refreshToken);
+        } catch (Exception e) {
+            System.out.println("Failed to hash refresh token: " + e.getMessage());
+            throw new BusinessValidationException("Invalid refresh token");
         }
 
-        // 3. Extract required claims
-        String currentSub = claims.getSubject();
-        String currentJti = claims.getId();
-
-        Date expiration = claims.getExpiration();
-
-        Instant currentExpiration =
-                expiration != null
-                        ? expiration.toInstant()
-                        : null;
-
-        // 4. Validate required claims
-        if (currentSub == null ||
-            currentSub.isBlank() ||
-            currentJti == null ||
-            currentJti.isBlank() ||
-            currentExpiration == null) {
-
-            System.out.println("Invalid refresh token: Missing required claims");
-            throw new BusinessValidationException("Refresh token invalid");
-        }
-
-        // 5. Parse subject
-        Long userId;
-
-        try {
-            userId = Long.parseLong(currentSub);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid refresh token: Subject is not a valid user ID");
-            throw new BusinessValidationException("Refresh token invalid");
-        }
-
-        // 6. Load login session
-        LoginSession currentLoginSession = loginSessionRepository
-            .findFirstByJtiAndUserId(currentJti,userId)
+        // 3. Find session by hashed refresh token
+        LoginSession session =
+            loginSessionRepository.findByHashedRefreshToken(hashedRefreshToken)
             .orElseThrow(() -> {
                 System.out.println("Invalid refresh token: Session not found");
-                return new BusinessValidationException("Refresh token invalid");
+                throw new BusinessValidationException("Invalid refresh token");
             });
 
-        // 7. Verify session user exists
-        if (currentLoginSession.getUser() == null) {
+
+        // 4. Verify user still exists
+        if (session.getUser() == null) {
             System.out.println("Invalid refresh token: User not found");
-            throw new BusinessValidationException("Refresh token invalid");
+            throw new BusinessValidationException("Invalid refresh token");
         }
 
-        // 8. Verify session is not revoked
-        if (currentLoginSession.getRevokedAt() != null) {
+        // 5. Verify session isn't revoked
+        if (session.getRevokedAt() != null) {
             System.out.println("Invalid refresh token: Session revoked");
-            throw new BusinessValidationException("Refresh token invalid");
+            throw new BusinessValidationException("Invalid refresh token");
         }
 
-        // 9. Verify session hasn't expired
-        if (!currentLoginSession
-                .getExpiresAt()
-                .isAfter(Instant.now())) {
 
-            System.out.println("Invalid refresh token: Session expired");
-            throw new BusinessValidationException("Refresh token invalid");
-        }
-
-        // 10. Verify JWT expiration matches database
-        if (!currentExpiration.equals(
-                currentLoginSession.getExpiresAt()
-        )) {
-
-            System.out.println("Invalid refresh token: Expiration mismatch");
-            System.out.println("JWT Expiration: " + currentExpiration);
-            System.out.println("Database Expiration: " + currentLoginSession.getExpiresAt());
-            throw new BusinessValidationException("Refresh token invalid");
-        }
-
-        return currentLoginSession;
+        return session;
     }
 
 }

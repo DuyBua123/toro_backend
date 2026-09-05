@@ -33,15 +33,21 @@ public class LoginSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "jti", nullable = false, unique = true)
-    private String jti;
+    // @Column(name = "jti", nullable = false, unique = true)
+    // private String jti;
 
+    @Column(name = "hashed_refresh_token", nullable = false, unique = true)
+    private String hashedRefreshToken;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "revoked_reason")
     private RevokedReason revokedReason;
 
-    @Column(name = "expires_at", nullable = false)
-    private Instant expiresAt;
+    @Column(name = "access_expires_at", nullable = false)
+    private Instant accessExpiresAt;
+
+    @Column(name = "refresh_expires_at", nullable = false)
+    private Instant refreshExpiresAt;
 
     @Column(name = "revoked_at")
     private Instant revokedAt;

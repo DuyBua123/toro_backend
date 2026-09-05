@@ -1,8 +1,7 @@
 package com.toro.backend.infrastructure.database.enums;
 
 public enum RevokedReason {
-    LOGIN_ROTATION,
     LOGOUT,
-    REFRESH_ROTATION,
+    SESSION_EXPIRED,
     SECURITY_REVOKE
 }

@@ -10,9 +10,6 @@ public interface LoginSessionRepository extends JpaRepository<LoginSession, Long
 
     Optional<LoginSession> findFirstByUserIdAndRevokedReasonIsNull(Long userId);
 
-    Optional<LoginSession> findFirstByJtiAndUserId(
-            String jti,
-            Long userId
-    );
+    Optional<LoginSession> findByHashedRefreshToken(String hashedRefreshToken);
 
 }
