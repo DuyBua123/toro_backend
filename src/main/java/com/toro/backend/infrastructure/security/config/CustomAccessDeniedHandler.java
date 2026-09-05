@@ -7,6 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
+import com.toro.backend.infrastructure.api.ErrorCode;
 import com.toro.backend.infrastructure.api.FailureResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         FailureResponse<String> error = FailureResponse.failure(
                 "You don't have permission to access this resource",
-                "FORBIDDEN",
+                ErrorCode.API_FORBIDDEN_ERROR,
                 ex.getMessage()
         );
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.toro.backend.infrastructure.api.ErrorCode;
 import com.toro.backend.infrastructure.api.FailureResponse;
 
 import java.util.LinkedHashMap;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<Map<String, Object>> response = FailureResponse.failure(
                 "Input validation failed",
-                "INPUT_VALIDATION_ERROR",
+                ErrorCode.INPUT_VALIDATION_ERROR,
                 errors);
 
         return ResponseEntity
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 "Business validation failed",
-                "BUSINESS_VALIDATION_ERROR",
+                ErrorCode.BUSINESS_VALIDATION_ERROR,
                 ex.getMessage());
 
         return ResponseEntity
@@ -54,7 +55,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 "Unauthenticated",
-                "UNAUTHORIZED_ERROR",
+                ErrorCode.UNAUTHENTICATED_ERROR,
                 ex.getMessage());
 
         return ResponseEntity
@@ -67,7 +68,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 "Unauthenticated",
-                "UNAUTHORIZED_ERROR",
+                ErrorCode.UNAUTHENTICATED_ERROR,
                 ex.getMessage());
 
         return ResponseEntity
@@ -80,7 +81,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 ex.getMessage(),
-                "UNAUTHORIZED_ERROR",
+                ErrorCode.REFRESH_TOKEN_ERROR,
                 ex.getMessage());
 
         return ResponseEntity
@@ -94,7 +95,7 @@ public class GlobalExceptionHandler {
 
         FailureResponse<String> response = FailureResponse.failure(
                 ex.getMessage(),
-                "SERVER_ERROR",
+                ErrorCode.SERVER_ERROR,
                 ex.getMessage());
 
         return ResponseEntity

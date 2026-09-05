@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import com.toro.backend.infrastructure.api.ErrorCode;
 import com.toro.backend.infrastructure.api.FailureResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         FailureResponse<String> error = FailureResponse.failure(
                 "User is not authenticated",
-                "ACCESS_TOKEN_INVALID",
+                ErrorCode.UNAUTHENTICATED_ERROR,
                 ex.getMessage()
         );
 
