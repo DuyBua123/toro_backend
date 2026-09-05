@@ -4,7 +4,6 @@ import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
-import com.toro.backend.infrastructure.database.enums.RevokedReason;
 import com.toro.backend.infrastructure.database.models.LoginSession;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;

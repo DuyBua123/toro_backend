@@ -1,13 +1,13 @@
 package com.toro.backend.application.authentication.refresh_token;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.enums.RevokedReason;
 import com.toro.backend.infrastructure.database.models.LoginSession;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
+import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,17 +21,14 @@ public class RefreshTokenUseCase {
     private final JwtService jwtService;
 
 
-    public Optional<RefreshTokenResult> execute(String accessToken, String refreshToken) {
-
-        
-        /*
+    /*
         CASE 1: Refresh token is INVALID => Throw new Business Validation Exception (Since this refresh token is not issued || not existed || not owned have owned user in backend)
-        CASE 2: Refresh token is EXPIRED => Revoke refresh token as SESSION_EXPIRED
-        CASE 3: Refresh token is VALID and NOT EXPIRED:
-            CASE 3.1: Access token is MISSING/EMPTY => Generate new access token ONLY with previous acess token expires at
-            CASE 3.2: Access token is not MISSING/EMPTY => Generate new access token AND refresh token
-        */
-       
+        CASE 2: Refresh token is EXPIRED => Revoke refresh token as SESSION_EXPIRED and throw new Invalid Refresh Token Exception
+        CASE 3: Refresh token is VALID and NOT EXPIRED => Generate new access token AND refresh token
+    */
+   
+    public RefreshTokenResult execute(String refreshToken) {
+
         // CASE 1
         LoginSession currentLoginSession = refreshTokenValidator.validate(refreshToken);
 
@@ -42,30 +39,10 @@ public class RefreshTokenUseCase {
 
             loginSessionRepository.save(currentLoginSession);
 
-            return Optional.ofNullable(null);
+            throw new InvalidRefreshTokenException("Login Session is Expired");
         }
 
-
-        // CASE 3.1
-        if (accessToken == null | accessToken.isBlank()) {
-            System.out.println("Issue new Access Token When Page Refresh!!!!");
-
-            Instant currentAccessTokenExpiresAt = currentLoginSession.getAccessExpiresAt();
-            String newAccessToken = jwtService.generateAccessToken(
-                currentLoginSession.getUser(), 
-                Instant.now(), 
-                currentAccessTokenExpiresAt);
-
-            RefreshTokenResult refreshTokenResult = new RefreshTokenResult(
-                newAccessToken,
-                refreshToken,
-                currentLoginSession.getRefreshExpiresAt()
-            );
-
-            return Optional.ofNullable(refreshTokenResult);
-        }
-
-        // CASE 3.2
+        // CASE 3
         System.out.println("Issue new Access Token AND Refresh Token when Acess Token EXPIRED!!!!");
 
         Instant now = Instant.now();
@@ -94,13 +71,11 @@ public class RefreshTokenUseCase {
 
         loginSessionRepository.save(currentLoginSession);
 
-        RefreshTokenResult refreshTokenResult = new RefreshTokenResult(
+        return new RefreshTokenResult(
                 newAccessToken,
                 newRefreshToken,
                 refreshTokenExpiresAt
         );
-
-        return Optional.ofNullable(refreshTokenResult);
     }
 
 

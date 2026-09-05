@@ -1,4 +1,6 @@
-package com.toro.backend.application.authentication.refresh_token;
+package com.toro.backend.application.authentication.bootstrap_token;
+
+import java.time.Instant;
 
 import org.springframework.stereotype.Component;
 
@@ -9,9 +11,9 @@ import com.toro.backend.infrastructure.security.jwt.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
-@RequiredArgsConstructor
-public class RefreshTokenValidator {
+@Component 
+@RequiredArgsConstructor 
+public class BootstrapTokenValidator {
 
     private final JwtService jwtService;
     private final LoginSessionRepository loginSessionRepository;
@@ -37,8 +39,8 @@ public class RefreshTokenValidator {
 
         // 3. Find session by hashed refresh token
         LoginSession session =
-        loginSessionRepository.findByHashedRefreshToken(hashedRefreshToken)
-        .orElseThrow(() -> {
+            loginSessionRepository.findByHashedRefreshToken(hashedRefreshToken)
+            .orElseThrow(() -> {
                 System.out.println("Invalid refresh token: Session not found");
                 throw new BusinessValidationException("Invalid refresh token");
             });
@@ -57,7 +59,16 @@ public class RefreshTokenValidator {
         }
 
 
+        // 6. Verify refresh session expiration
+        Instant refreshExpiresAt = session.getRefreshExpiresAt();
+
+        if (!refreshExpiresAt.isAfter(Instant.now())) {
+            System.out.println("Invalid refresh token:: Login Session expired");
+            throw new BusinessValidationException("Invalid refresh token");
+        }
+
+
         return session;
-    }
+    } 
 
 }
