@@ -9,7 +9,6 @@ import com.toro.backend.application.authentication.refresh_token.RefreshTokenRes
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
-import com.toro.backend.infrastructure.exception.UnauthenticatedException;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
 import com.toro.backend.presentation.authentication.request.RefreshTokenRequest;
 import com.toro.backend.presentation.authentication.response.LoginResponse;
