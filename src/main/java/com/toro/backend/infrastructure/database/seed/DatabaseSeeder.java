@@ -27,10 +27,10 @@ public class DatabaseSeeder implements ApplicationRunner {
     
     @Override
     public void run(ApplicationArguments args) {
-        // System.out.println("Seeder running on startup...");
+        System.out.println("Seeder running on startup...");
 
-        // cleanUp();
-        // seedAccounts();
+        cleanUp();
+        seedAccounts();
 
     }
 

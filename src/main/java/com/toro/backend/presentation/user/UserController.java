@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -32,7 +33,7 @@ public class UserController {
 
 
     @GetMapping("/get-users")
-    // @PreAuthorize("ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<List<GetUsersResponse>>> getUsers() {
         List<GetUsersResponse> response = getUsersUseCase.execute()
             .stream()
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/get-user/{user_id}")
-    // @PreAuthorize("ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<GetUserResponse>> getUser(
         @PathVariable("user_id") 
         @NotNull(message = "User id is required") Long userId

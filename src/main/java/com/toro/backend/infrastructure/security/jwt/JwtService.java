@@ -59,7 +59,7 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .issuedAt(Date.from(issueAt))
                 .expiration(Date.from(expiresAt))
-                .claim("roles", List.of("")) // EMPTY ROLES
+                .claim("roles", List.of(user.getRole().name()))
                 .signWith(secretKey)
                 .compact();
     }
