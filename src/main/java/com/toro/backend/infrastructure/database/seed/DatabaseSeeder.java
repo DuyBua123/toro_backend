@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.toro.backend.infrastructure.database.enums.AppRole;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.UserRepository;
 
@@ -72,6 +73,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                     .phoneNumber("0123456789")
                     .passwordHash(passwordEncoder.encode("123456"))
                     .isActive(true)
+                    .role(AppRole.ADMIN)
                     .build();
 
 
