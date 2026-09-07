@@ -9,11 +9,15 @@ import com.toro.backend.application.user.get_user.GetUserResult;
 import com.toro.backend.application.user.get_user.GetUserUseCase;
 import com.toro.backend.application.user.get_users.GetUsersResult;
 import com.toro.backend.application.user.get_users.GetUsersUseCase;
+import com.toro.backend.application.user.update_user.UpdateUserResult;
+import com.toro.backend.application.user.update_user.UpdateUserUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.user.request.CreateUserRequest;
+import com.toro.backend.presentation.user.request.UpdateUserRequest;
 import com.toro.backend.presentation.user.response.CreateUserResponse;
 import com.toro.backend.presentation.user.response.GetUserResponse;
 import com.toro.backend.presentation.user.response.GetUsersResponse;
+import com.toro.backend.presentation.user.response.UpdateUserResponse;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +31,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -39,6 +45,7 @@ public class UserController {
     private final GetUsersUseCase getUsersUseCase;
     private final GetUserUseCase getUserUseCase;
     private final CreateUserUseCase createUserUseCase;
+    private final UpdateUserUseCase updateUserUseCase;
 
 
     @GetMapping("/get-users")
@@ -79,6 +86,19 @@ public class UserController {
         );
     }
     
+    @PutMapping("/update-user/{user_id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<UpdateUserResponse>> updateUser(
+        @PathVariable("user_id")
+        @NotNull(message = "User id is required") Long userId,
+        @Valid @RequestBody UpdateUserRequest request
+    ) {
+        UpdateUserResponse response = toUpdateUserResponse(updateUserUseCase.execute(userId, request));
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Update user successfully", response)
+        );
+    }
 
 
     // PRIVATE METHODS
@@ -106,6 +126,17 @@ public class UserController {
 
     private CreateUserResponse toCreateUserResponse(CreateUserResult result) {
         return new CreateUserResponse(
+            result.id(),
+            result.fullName(),
+            result.email(),
+            result.phoneNumber(),
+            result.isActive(),
+            result.createdAt()
+        );
+    }
+
+    private UpdateUserResponse toUpdateUserResponse(UpdateUserResult result) {
+        return new UpdateUserResponse(
             result.id(),
             result.fullName(),
             result.email(),
