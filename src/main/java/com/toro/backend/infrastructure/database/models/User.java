@@ -41,8 +41,8 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "status", nullable = false)
-    private String status; 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive; 
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

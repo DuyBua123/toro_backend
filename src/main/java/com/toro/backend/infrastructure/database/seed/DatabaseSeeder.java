@@ -71,7 +71,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                     .email("admin@example.com")
                     .phoneNumber("0123456789")
                     .passwordHash(passwordEncoder.encode("123456"))
-                    .status("ACTIVE")
+                    .isActive(true)
                     .build();
 
 
