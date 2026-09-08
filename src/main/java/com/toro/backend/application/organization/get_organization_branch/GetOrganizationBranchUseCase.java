@@ -14,8 +14,8 @@ public class GetOrganizationBranchUseCase {
     private final GetOrganizationBranchValidator getOrganizationBranchValidator;
 
     @Transactional(readOnly = true)
-    public GetOrganizationBranchResult execute(Long organizationId, Long organizationBranchId) {
-        OrganizationBranch organizationBranch = getOrganizationBranchValidator.validate(organizationId, organizationBranchId);
+    public GetOrganizationBranchResult execute(Long organizationBranchId) {
+        OrganizationBranch organizationBranch = getOrganizationBranchValidator.validate(organizationBranchId);
 
         return toResult(organizationBranch);
     }

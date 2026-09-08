@@ -20,12 +20,10 @@ public class UpdateOrganizationBranchUseCase {
 
     @Transactional
     public UpdateOrganizationBranchResult execute(
-        Long organizationId,
         Long organizationBranchId,
         UpdateOrganizationBranchRequest request
     ) {
         OrganizationBranch organizationBranch = updateOrganizationBranchValidator.validate(
-            organizationId,
             organizationBranchId
         );
 

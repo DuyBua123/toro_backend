@@ -1,4 +1,4 @@
-package com.toro.backend.application.organization.get_organization_branch;
+package com.toro.backend.application.organization.delete_organization_branch;
 
 import org.springframework.stereotype.Component;
 
@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class GetOrganizationBranchValidator {
+public class DeleteOrganizationBranchValidator {
 
     private final OrganizationBranchRepository organizationBranchRepository;
+
 
     public OrganizationBranch validate(Long organizationBranchId) {
         return organizationBranchRepository.findById(organizationBranchId)

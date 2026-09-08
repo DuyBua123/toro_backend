@@ -18,6 +18,7 @@ import com.toro.backend.application.organization.create_organization.CreateOrgan
 import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchResult;
 import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchUseCase;
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
+import com.toro.backend.application.organization.delete_organization_branch.DeleteOrganizationBranchUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
 import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchResult;
@@ -67,6 +68,7 @@ public class OrganizationController {
     private final GetOrganizationBranchUseCase getOrganizationBranchUseCase;
     private final CreateOrganizationBranchUseCase createOrganizationBranchUseCase;
     private final UpdateOrganizationBranchUseCase updateOrganizationBranchUseCase;
+    private final DeleteOrganizationBranchUseCase deleteOrganizationBranchUseCase;
 
 
     // ================================== Organization ===============================================
@@ -172,13 +174,11 @@ public class OrganizationController {
     @GetMapping("/get-organization-branch")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<GetOrganizationBranchResponse>> getOrganizationBranch(
-        @RequestParam("organization_id")
-        @NotNull(message = "Organization id is required") Long organizationId,
         @RequestParam("organization_branch_id")
         @NotNull(message = "Organization branch id is required") Long organizationBranchId
     ) {
         GetOrganizationBranchResponse response = toGetOrganizationBranchResponse(
-            getOrganizationBranchUseCase.execute(organizationId, organizationBranchId)
+            getOrganizationBranchUseCase.execute(organizationBranchId)
         );
 
         return ResponseEntity.ok(
@@ -205,18 +205,29 @@ public class OrganizationController {
     @PutMapping("/update-organization-branch")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<UpdateOrganizationBranchResponse>> updateOrganizationBranch(
-        @RequestParam("organization_id")
-        @NotNull(message = "Organization id is required") Long organizationId,
         @RequestParam("organization_branch_id")
         @NotNull(message = "Organization branch id is required") Long organizationBranchId,
         @Valid @RequestBody UpdateOrganizationBranchRequest request
     ) {
         UpdateOrganizationBranchResponse response = toUpdateOrganizationBranchResponse(
-            updateOrganizationBranchUseCase.execute(organizationId, organizationBranchId, request)
+            updateOrganizationBranchUseCase.execute(organizationBranchId, request)
         );
 
         return ResponseEntity.ok(
             SuccessResponse.success("Update organization branch successfully", response)
+        );
+    }
+
+    @DeleteMapping("/delete-organization-branch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<Void>> deleteOrganizationBranch(
+        @RequestParam("organization_branch_id")
+        @NotNull(message = "Organization branch id is required") Long organizationBranchId
+    ) {
+        deleteOrganizationBranchUseCase.execute(organizationBranchId);
+
+        return ResponseEntity.ok(
+            SuccessResponse.successMessage("Delete organization branch successfully")
         );
     }
     
