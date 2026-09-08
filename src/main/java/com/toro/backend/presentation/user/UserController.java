@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.user.create_user.CreateUserResult;
 import com.toro.backend.application.user.create_user.CreateUserUseCase;
+import com.toro.backend.application.user.delete_user.DeleteUserUseCase;
 import com.toro.backend.application.user.get_user.GetUserResult;
 import com.toro.backend.application.user.get_user.GetUserUseCase;
 import com.toro.backend.application.user.get_users.GetUsersResult;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 
 
@@ -46,6 +48,7 @@ public class UserController {
     private final GetUserUseCase getUserUseCase;
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
 
 
     @GetMapping("/get-users")
@@ -97,6 +100,19 @@ public class UserController {
 
         return ResponseEntity.ok(
             SuccessResponse.success("Update user successfully", response)
+        );
+    }
+
+    @DeleteMapping("/delete-user/{user_id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<Void>> deleteUser(
+        @PathVariable("user_id")
+        @NotNull(message = "User id is required") Long userId
+    ) {
+        deleteUserUseCase.execute(userId);
+
+        return ResponseEntity.ok(
+            SuccessResponse.successMessage("Delete user successfully")
         );
     }
 
