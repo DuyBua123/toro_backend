@@ -59,7 +59,7 @@ public class Organization {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, updatable = true)
+    @Column(name = "updated_at", nullable = true, updatable = true)
     private Instant updatedAt;
 
 

@@ -10,4 +10,8 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     boolean existsByTaxCode(String taxCode);
 
+    boolean existsByOrganizationCodeAndIdNot(String organizationCode, Long id);
+
+    boolean existsByTaxCodeAndIdNot(String taxCode, Long id);
+
 }

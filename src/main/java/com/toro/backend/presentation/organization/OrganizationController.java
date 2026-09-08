@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,11 +18,15 @@ import com.toro.backend.application.organization.get_organization.GetOrganizatio
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
+import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
+import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
+import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
+import com.toro.backend.presentation.organization.response.UpdateOrganizationResponse;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +40,7 @@ public class OrganizationController {
     private final GetOrganizationsUseCase getOrganizationsUseCase;
     private final GetOrganizationUseCase getOrganizationUseCase;
     private final CreateOrganizationUseCase createOrganizationUseCase;
+    private final UpdateOrganizationUseCase updateOrganizationUseCase;
 
 
     @GetMapping("/get-organizations")
@@ -75,10 +81,37 @@ public class OrganizationController {
         );
     }
 
+    @PutMapping("/update-organization/{organization_id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<UpdateOrganizationResponse>> updateOrganization(
+        @PathVariable("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId,
+        @Valid @RequestBody UpdateOrganizationRequest request
+    ) {
+        UpdateOrganizationResponse response = toUpdateOrganizationResponse(updateOrganizationUseCase.execute(organizationId, request));
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Update organization successfully", response)
+        );
+    }
+
 
     // PRIVATE METHODS
     private CreateOrganizationResponse toCreateOrganizationResponse(CreateOrganizationResult result) {
         return new CreateOrganizationResponse(
+            result.id(),
+            result.organizationCode(),
+            result.organizationName(),
+            result.organizationType(),
+            result.taxCode(),
+            result.blockchainWallet(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private UpdateOrganizationResponse toUpdateOrganizationResponse(UpdateOrganizationResult result) {
+        return new UpdateOrganizationResponse(
             result.id(),
             result.organizationCode(),
             result.organizationName(),
