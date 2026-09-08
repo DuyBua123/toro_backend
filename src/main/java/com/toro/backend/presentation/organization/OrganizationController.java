@@ -18,6 +18,8 @@ import com.toro.backend.application.organization.create_organization.CreateOrgan
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
+import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchResult;
+import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchUseCase;
 import com.toro.backend.application.organization.get_organization_branches.GetOrganizationBranchesResult;
 import com.toro.backend.application.organization.get_organization_branches.GetOrganizationBranchesUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
@@ -30,6 +32,7 @@ import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
+import com.toro.backend.presentation.organization.response.GetOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationBranchesResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
@@ -53,6 +56,7 @@ public class OrganizationController {
     private final DeleteOrganizationUseCase deleteOrganizationUseCase;
 
     private final GetOrganizationBranchesUseCase getOrganizationBranchesUseCase;
+    private final GetOrganizationBranchUseCase getOrganizationBranchUseCase;
 
 
     // ================================== Organization ===============================================
@@ -154,6 +158,23 @@ public class OrganizationController {
             SuccessResponse.success("Get organization branches successfully", response)
         );
     }
+
+    @GetMapping("/get-organization-branch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<GetOrganizationBranchResponse>> getOrganizationBranch(
+        @RequestParam("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId,
+        @RequestParam("organization_branch_id")
+        @NotNull(message = "Organization branch id is required") Long organizationBranchId
+    ) {
+        GetOrganizationBranchResponse response = toGetOrganizationBranchResponse(
+            getOrganizationBranchUseCase.execute(organizationId, organizationBranchId)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Get organization branch successfully", response)
+        );
+    }
     
 
 
@@ -227,6 +248,17 @@ public class OrganizationController {
 
     private GetOrganizationBranchesResponse toGetOrganizationBranchesResponse(GetOrganizationBranchesResult result) {
         return new GetOrganizationBranchesResponse(
+            result.id(),
+            result.country(),
+            result.address(),
+            result.branchType(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private GetOrganizationBranchResponse toGetOrganizationBranchResponse(GetOrganizationBranchResult result) {
+        return new GetOrganizationBranchResponse(
             result.id(),
             result.country(),
             result.address(),
