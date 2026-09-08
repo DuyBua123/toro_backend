@@ -30,9 +30,12 @@ import com.toro.backend.application.organization.search_organizations.SearchOrga
 import com.toro.backend.application.organization.search_organizations.SearchOrganizationsUseCase;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
+import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchResult;
+import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
+import com.toro.backend.presentation.organization.request.UpdateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
 import com.toro.backend.presentation.organization.response.CreateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
@@ -41,6 +44,7 @@ import com.toro.backend.presentation.organization.response.GetOrganizationBranch
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
 import com.toro.backend.presentation.organization.response.SearchOrganizationsResponse;
+import com.toro.backend.presentation.organization.response.UpdateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationResponse;
 
 import jakarta.validation.Valid;
@@ -62,6 +66,7 @@ public class OrganizationController {
     private final GetOrganizationBranchesUseCase getOrganizationBranchesUseCase;
     private final GetOrganizationBranchUseCase getOrganizationBranchUseCase;
     private final CreateOrganizationBranchUseCase createOrganizationBranchUseCase;
+    private final UpdateOrganizationBranchUseCase updateOrganizationBranchUseCase;
 
 
     // ================================== Organization ===============================================
@@ -196,6 +201,24 @@ public class OrganizationController {
             SuccessResponse.success("Create organization branch successfully", response)
         );
     }
+
+    @PutMapping("/update-organization-branch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<UpdateOrganizationBranchResponse>> updateOrganizationBranch(
+        @RequestParam("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId,
+        @RequestParam("organization_branch_id")
+        @NotNull(message = "Organization branch id is required") Long organizationBranchId,
+        @Valid @RequestBody UpdateOrganizationBranchRequest request
+    ) {
+        UpdateOrganizationBranchResponse response = toUpdateOrganizationBranchResponse(
+            updateOrganizationBranchUseCase.execute(organizationId, organizationBranchId, request)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Update organization branch successfully", response)
+        );
+    }
     
 
 
@@ -291,6 +314,17 @@ public class OrganizationController {
 
     private CreateOrganizationBranchResponse toCreateOrganizationBranchResponse(CreateOrganizationBranchResult result) {
         return new CreateOrganizationBranchResponse(
+            result.id(),
+            result.country(),
+            result.address(),
+            result.branchType(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private UpdateOrganizationBranchResponse toUpdateOrganizationBranchResponse(UpdateOrganizationBranchResult result) {
+        return new UpdateOrganizationBranchResponse(
             result.id(),
             result.country(),
             result.address(),
