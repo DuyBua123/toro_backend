@@ -1,6 +1,7 @@
 package com.toro.backend.presentation.user;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.user.create_user.CreateUserResult;
@@ -64,10 +65,10 @@ public class UserController {
         );
     }
 
-    @GetMapping("/get-user/{user_id}")
+    @GetMapping("/get-user")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<GetUserResponse>> getUser(
-        @PathVariable("user_id") 
+        @RequestParam("user_id") 
         @NotNull(message = "User id is required") Long userId
     ) {
         GetUserResponse response = toGetUserResponse(getUserUseCase.execute(userId));
@@ -89,10 +90,10 @@ public class UserController {
         );
     }
     
-    @PutMapping("/update-user/{user_id}")
+    @PutMapping("/update-user")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<UpdateUserResponse>> updateUser(
-        @PathVariable("user_id")
+        @RequestParam("user_id") 
         @NotNull(message = "User id is required") Long userId,
         @Valid @RequestBody UpdateUserRequest request
     ) {
@@ -103,7 +104,7 @@ public class UserController {
         );
     }
 
-    @DeleteMapping("/delete-user/{user_id}")
+    @DeleteMapping("/delete-user")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<Void>> deleteUser(
         @PathVariable("user_id")
