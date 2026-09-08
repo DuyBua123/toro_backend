@@ -1,7 +1,6 @@
 package com.toro.backend.infrastructure.database.models;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 import com.toro.backend.infrastructure.database.enums.OrganizationType;
 
