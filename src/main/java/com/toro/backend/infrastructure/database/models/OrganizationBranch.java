@@ -6,6 +6,8 @@ import com.toro.backend.infrastructure.database.enums.BranchType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,15 +31,16 @@ import lombok.NoArgsConstructor;
 public class OrganizationBranch {
 
     @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "country", nullable = false)
+    @Column (name = "country", nullable = false)
     private String country;
 
     @Column(name = "address", nullable = false)
     private String address;
     
+    @Enumerated (EnumType.STRING)
     @Column(name = "branch_type", nullable = false)
     private BranchType branchType;
 
@@ -49,11 +52,11 @@ public class OrganizationBranch {
 
 
     // Relationships
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @ManyToOne (fetch = FetchType.LAZY, optional = false)
+    @JoinColumn (name = "organization_id", nullable = false)
     private Organization organization;
 
-    @PrePersist
+    @PrePersist 
     protected void onCreate() {
         createdAt = Instant.now();;
     }

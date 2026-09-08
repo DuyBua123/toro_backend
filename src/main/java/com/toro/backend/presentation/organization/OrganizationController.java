@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.organization.create_organization.CreateOrganizationResult;
 import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
+import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchResult;
+import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchUseCase;
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
@@ -29,8 +31,10 @@ import com.toro.backend.application.organization.search_organizations.SearchOrga
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
+import com.toro.backend.presentation.organization.response.CreateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationBranchesResponse;
@@ -57,6 +61,7 @@ public class OrganizationController {
 
     private final GetOrganizationBranchesUseCase getOrganizationBranchesUseCase;
     private final GetOrganizationBranchUseCase getOrganizationBranchUseCase;
+    private final CreateOrganizationBranchUseCase createOrganizationBranchUseCase;
 
 
     // ================================== Organization ===============================================
@@ -175,6 +180,22 @@ public class OrganizationController {
             SuccessResponse.success("Get organization branch successfully", response)
         );
     }
+
+    @PostMapping("/create-organization-branch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<CreateOrganizationBranchResponse>> createOrganizationBranch(
+        @RequestParam("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId,
+        @Valid @RequestBody CreateOrganizationBranchRequest request
+    ) {
+        CreateOrganizationBranchResponse response = toCreateOrganizationBranchResponse(
+            createOrganizationBranchUseCase.execute(organizationId, request)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Create organization branch successfully", response)
+        );
+    }
     
 
 
@@ -259,6 +280,17 @@ public class OrganizationController {
 
     private GetOrganizationBranchResponse toGetOrganizationBranchResponse(GetOrganizationBranchResult result) {
         return new GetOrganizationBranchResponse(
+            result.id(),
+            result.country(),
+            result.address(),
+            result.branchType(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private CreateOrganizationBranchResponse toCreateOrganizationBranchResponse(CreateOrganizationBranchResult result) {
+        return new CreateOrganizationBranchResponse(
             result.id(),
             result.country(),
             result.address(),
