@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.organization.create_organization.CreateOrganizationResult;
 import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
+import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
@@ -41,6 +43,7 @@ public class OrganizationController {
     private final GetOrganizationUseCase getOrganizationUseCase;
     private final CreateOrganizationUseCase createOrganizationUseCase;
     private final UpdateOrganizationUseCase updateOrganizationUseCase;
+    private final DeleteOrganizationUseCase deleteOrganizationUseCase;
 
 
     @GetMapping("/get-organizations")
@@ -92,6 +95,19 @@ public class OrganizationController {
 
         return ResponseEntity.ok(
             SuccessResponse.success("Update organization successfully", response)
+        );
+    }
+
+    @DeleteMapping("/delete-organization/{organization_id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<Void>> deleteOrganization(
+        @PathVariable("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId
+    ) {
+        deleteOrganizationUseCase.execute(organizationId);
+
+        return ResponseEntity.ok(
+            SuccessResponse.successMessage("Delete organization successfully")
         );
     }
 
