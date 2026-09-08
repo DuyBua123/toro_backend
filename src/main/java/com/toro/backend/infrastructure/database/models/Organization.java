@@ -1,9 +1,11 @@
 package com.toro.backend.infrastructure.database.models;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.toro.backend.infrastructure.database.enums.OrganizationType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -41,12 +44,6 @@ public class Organization {
     @Column(name = "organization_type", nullable = false)
     private OrganizationType organizationType;
 
-    // @Column(name = "country")
-    // private String country;
-
-    // @Column(name = "address", columnDefinition = "TEXT")
-    // private String address;
-
     @Column(name = "tax_code", unique = true)
     private String taxCode;
 
@@ -62,6 +59,14 @@ public class Organization {
     @Column(name = "updated_at", nullable = true, updatable = true)
     private Instant updatedAt;
 
+
+    // Relationships
+    @OneToMany(
+        mappedBy = "organization",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<OrganizationBranch> branches;
 
 
     @PrePersist
