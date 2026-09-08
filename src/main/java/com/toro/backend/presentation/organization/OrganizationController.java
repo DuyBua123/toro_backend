@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.organization.create_organization.CreateOrganizationResult;
@@ -20,6 +21,8 @@ import com.toro.backend.application.organization.get_organization.GetOrganizatio
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
+import com.toro.backend.application.organization.search_organizations.SearchOrganizationsResult;
+import com.toro.backend.application.organization.search_organizations.SearchOrganizationsUseCase;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
@@ -28,6 +31,7 @@ import com.toro.backend.presentation.organization.request.UpdateOrganizationRequ
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
+import com.toro.backend.presentation.organization.response.SearchOrganizationsResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationResponse;
 
 import jakarta.validation.Valid;
@@ -41,6 +45,7 @@ public class OrganizationController {
 
     private final GetOrganizationsUseCase getOrganizationsUseCase;
     private final GetOrganizationUseCase getOrganizationUseCase;
+    private final SearchOrganizationsUseCase searchOrganizationsUseCase;
     private final CreateOrganizationUseCase createOrganizationUseCase;
     private final UpdateOrganizationUseCase updateOrganizationUseCase;
     private final DeleteOrganizationUseCase deleteOrganizationUseCase;
@@ -56,6 +61,22 @@ public class OrganizationController {
 
         return ResponseEntity.ok(
             SuccessResponse.success("Get organizations successfully", response)
+        );
+    }
+
+    @GetMapping("/search-organizations")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<List<SearchOrganizationsResponse>>> searchOrganizations(
+        @RequestParam(value = "field", required = false) String field,
+        @RequestParam(value = "value", required = false) String value
+    ) {
+        List<SearchOrganizationsResponse> response = searchOrganizationsUseCase.execute(field, value)
+            .stream()
+            .map(this::toSearchOrganizationsResponse)
+            .toList();
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Search organizations successfully", response)
         );
     }
 
@@ -154,6 +175,19 @@ public class OrganizationController {
 
     private GetOrganizationsResponse toGetOrganizationsResponse(GetOrganizationsResult result) {
         return new GetOrganizationsResponse(
+            result.id(),
+            result.organizationCode(),
+            result.organizationName(),
+            result.organizationType(),
+            result.taxCode(),
+            result.blockchainWallet(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private SearchOrganizationsResponse toSearchOrganizationsResponse(SearchOrganizationsResult result) {
+        return new SearchOrganizationsResponse(
             result.id(),
             result.organizationCode(),
             result.organizationName(),
