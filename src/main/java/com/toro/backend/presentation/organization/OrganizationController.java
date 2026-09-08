@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,10 +85,10 @@ public class OrganizationController {
         );
     }
 
-    @GetMapping("/get-organization/{organization_id}")
+    @GetMapping("/get-organization")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<GetOrganizationResponse>> getOrganization(
-        @PathVariable("organization_id")
+        @RequestParam ("organization_id")
         @NotNull(message = "Organization id is required") Long organizationId
     ) {
         GetOrganizationResponse response = toGetOrganizationResponse(getOrganizationUseCase.execute(organizationId));
@@ -111,10 +110,10 @@ public class OrganizationController {
         );
     }
 
-    @PutMapping("/update-organization/{organization_id}")
+    @PutMapping("/update-organization")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<UpdateOrganizationResponse>> updateOrganization(
-        @PathVariable("organization_id")
+        @RequestParam ("organization_id")
         @NotNull(message = "Organization id is required") Long organizationId,
         @Valid @RequestBody UpdateOrganizationRequest request
     ) {
@@ -128,7 +127,7 @@ public class OrganizationController {
     @DeleteMapping("/delete-organization/{organization_id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<Void>> deleteOrganization(
-        @PathVariable("organization_id")
+        @RequestParam ("organization_id")
         @NotNull(message = "Organization id is required") Long organizationId
     ) {
         deleteOrganizationUseCase.execute(organizationId);
