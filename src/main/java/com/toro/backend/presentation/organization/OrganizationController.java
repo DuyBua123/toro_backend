@@ -6,17 +6,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.toro.backend.application.organization.create_organization.CreateOrganizationResult;
+import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
+import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +34,7 @@ public class OrganizationController {
 
     private final GetOrganizationsUseCase getOrganizationsUseCase;
     private final GetOrganizationUseCase getOrganizationUseCase;
+    private final CreateOrganizationUseCase createOrganizationUseCase;
 
 
     @GetMapping("/get-organizations")
@@ -55,8 +63,33 @@ public class OrganizationController {
         );
     }
 
+    @PostMapping("/create-organization")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<CreateOrganizationResponse>> createOrganization(
+        @Valid @RequestBody CreateOrganizationRequest request
+    ) {
+        CreateOrganizationResponse response = toCreateOrganizationResponse(createOrganizationUseCase.execute(request));
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Create organization successfully", response)
+        );
+    }
+
 
     // PRIVATE METHODS
+    private CreateOrganizationResponse toCreateOrganizationResponse(CreateOrganizationResult result) {
+        return new CreateOrganizationResponse(
+            result.id(),
+            result.organizationCode(),
+            result.organizationName(),
+            result.organizationType(),
+            result.taxCode(),
+            result.blockchainWallet(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
     private GetOrganizationResponse toGetOrganizationResponse(GetOrganizationResult result) {
         return new GetOrganizationResponse(
             result.id(),

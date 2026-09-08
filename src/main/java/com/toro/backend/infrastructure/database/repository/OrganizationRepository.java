@@ -6,4 +6,8 @@ import com.toro.backend.infrastructure.database.models.Organization;
 
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 
+    boolean existsByOrganizationCode(String organizationCode);
+
+    boolean existsByTaxCode(String taxCode);
+
 }

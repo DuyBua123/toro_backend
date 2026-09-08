@@ -59,14 +59,14 @@ public class Organization {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false, updatable = true)
     private Instant updatedAt;
 
 
 
     @PrePersist
     protected void onCreate() {
-        createdAt = Instant.now();
+        createdAt = Instant.now();;
     }
 
     @PreUpdate 
