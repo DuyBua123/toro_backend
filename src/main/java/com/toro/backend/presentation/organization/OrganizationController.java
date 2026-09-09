@@ -17,6 +17,8 @@ import com.toro.backend.application.organization.create_organization.CreateOrgan
 import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
 import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchResult;
 import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchUseCase;
+import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberResult;
+import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberUseCase;
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
 import com.toro.backend.application.organization.delete_organization_branch.DeleteOrganizationBranchUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
@@ -36,10 +38,12 @@ import com.toro.backend.application.organization.update_organization.UpdateOrgan
 import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchResult;
 import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.presentation.organization.request.AddOrganizationMemberRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
+import com.toro.backend.presentation.organization.response.AddOrganizationMemberResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationBranchResponse;
@@ -74,6 +78,7 @@ public class OrganizationController {
     private final DeleteOrganizationBranchUseCase deleteOrganizationBranchUseCase;
 
     private final GetOrganizationMembersUseCase getOrganizationMembersUseCase;
+    private final AddOrganizationMemberUseCase addOrganizationMemberUseCase;
 
 
     // ================================== Organization ===============================================
@@ -253,6 +258,22 @@ public class OrganizationController {
             SuccessResponse.success("Get organization members successfully", response)
         );
     }
+
+    @PostMapping("/add-organization-member")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<AddOrganizationMemberResponse>> addOrganizationMember(
+        @RequestParam("organization_branch_id")
+        @NotNull(message = "Organization branch id is required") Long organizationBranchId,
+        @Valid @RequestBody AddOrganizationMemberRequest request
+    ) {
+        AddOrganizationMemberResponse response = toAddOrganizationMemberResponse(
+            addOrganizationMemberUseCase.execute(organizationBranchId, request)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Add organization member successfully", response)
+        );
+    }
     
 
 
@@ -369,6 +390,20 @@ public class OrganizationController {
 
     private GetOrganizationMembersResponse toGetOrganizationMembersResponse(GetOrganizationMembersResult result) {
         return new GetOrganizationMembersResponse(
+            result.userId(),
+            result.memberId(),
+            result.fullName(),
+            result.email(),
+            result.phoneNumber(),
+            result.organizationRole(),
+            result.organizationDepartment(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private AddOrganizationMemberResponse toAddOrganizationMemberResponse(AddOrganizationMemberResult result) {
+        return new AddOrganizationMemberResponse(
             result.userId(),
             result.memberId(),
             result.fullName(),
