@@ -60,6 +60,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LoginSession> loginSessions;
 
+    @OneToMany(
+        mappedBy = "user",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<OrganizationMember> organizationMembers;
+
 
     @PrePersist
     protected void onCreate() {

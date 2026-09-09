@@ -1,6 +1,5 @@
 package com.toro.backend.infrastructure.database.repository;
 
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

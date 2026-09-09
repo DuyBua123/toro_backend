@@ -1,11 +1,10 @@
 package com.toro.backend.infrastructure.database.models;
 
 import java.time.Instant;
-import java.util.List;
 
-import com.toro.backend.infrastructure.database.enums.BranchType;
+import com.toro.backend.infrastructure.database.enums.OrganizationDepartment;
+import com.toro.backend.infrastructure.database.enums.OrganizationRole;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -30,23 +28,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor 
 @NoArgsConstructor 
 @Entity 
-@Table (name = "organization_branches")
-public class OrganizationBranch {
+@Table (name = "organization_members")
+public class OrganizationMember {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (name = "country", nullable = false)
-    private String country;
+    @Enumerated(EnumType.STRING)
+    @Column()    
+    private OrganizationRole organizationRole;
 
-    @Column(name = "address", nullable = false)
-    private String address;
+    @Enumerated(EnumType.STRING)
+    @Column()    
+    private OrganizationDepartment organizationDepartment;
     
-    @Enumerated (EnumType.STRING)
-    @Column(name = "branch_type", nullable = false)
-    private BranchType branchType;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -55,19 +51,17 @@ public class OrganizationBranch {
 
 
     // Relationships
-    @ManyToOne (fetch = FetchType.LAZY, optional = false)
-    @JoinColumn (name = "organization_id", nullable = false)
-    private Organization organization;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @OneToMany(
-        mappedBy = "organizationBranch",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
-    private List<OrganizationMember> organizationMembers;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "organization_branch_id", nullable = false)
+    private OrganizationBranch organizationBranch;
 
     
-    @PrePersist 
+    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();;
     }
