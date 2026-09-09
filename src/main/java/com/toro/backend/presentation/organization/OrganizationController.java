@@ -31,6 +31,7 @@ import com.toro.backend.application.organization.get_organization_members.GetOrg
 import com.toro.backend.application.organization.get_organization_members.GetOrganizationMembersUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
+import com.toro.backend.application.organization.remove_organization_member.RemoveOrganizationMemberUseCase;
 import com.toro.backend.application.organization.search_organizations.SearchOrganizationsResult;
 import com.toro.backend.application.organization.search_organizations.SearchOrganizationsUseCase;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
@@ -79,6 +80,7 @@ public class OrganizationController {
 
     private final GetOrganizationMembersUseCase getOrganizationMembersUseCase;
     private final AddOrganizationMemberUseCase addOrganizationMemberUseCase;
+    private final RemoveOrganizationMemberUseCase removeOrganizationMemberUseCase;
 
 
     // ================================== Organization ===============================================
@@ -272,6 +274,19 @@ public class OrganizationController {
 
         return ResponseEntity.ok(
             SuccessResponse.success("Add organization member successfully", response)
+        );
+    }
+
+    @DeleteMapping("/remove-organization-member")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<Void>> removeOrganizationMember(
+        @RequestParam("member_id")
+        @NotNull(message = "Member id is required") Long memberId
+    ) {
+        removeOrganizationMemberUseCase.execute(memberId);
+
+        return ResponseEntity.ok(
+            SuccessResponse.successMessage("Remove organization member successfully")
         );
     }
     
