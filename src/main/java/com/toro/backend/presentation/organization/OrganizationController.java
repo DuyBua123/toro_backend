@@ -38,11 +38,14 @@ import com.toro.backend.application.organization.update_organization.UpdateOrgan
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
 import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchResult;
 import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchUseCase;
+import com.toro.backend.application.organization.update_organization_member.UpdateOrganizationMemberResult;
+import com.toro.backend.application.organization.update_organization_member.UpdateOrganizationMemberUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.organization.request.AddOrganizationMemberRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationBranchRequest;
+import com.toro.backend.presentation.organization.request.UpdateOrganizationMemberRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
 import com.toro.backend.presentation.organization.response.AddOrganizationMemberResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationBranchResponse;
@@ -54,6 +57,7 @@ import com.toro.backend.presentation.organization.response.GetOrganizationRespon
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
 import com.toro.backend.presentation.organization.response.SearchOrganizationsResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationBranchResponse;
+import com.toro.backend.presentation.organization.response.UpdateOrganizationMemberResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationResponse;
 
 import jakarta.validation.Valid;
@@ -80,6 +84,7 @@ public class OrganizationController {
 
     private final GetOrganizationMembersUseCase getOrganizationMembersUseCase;
     private final AddOrganizationMemberUseCase addOrganizationMemberUseCase;
+    private final UpdateOrganizationMemberUseCase updateOrganizationMemberUseCase;
     private final RemoveOrganizationMemberUseCase removeOrganizationMemberUseCase;
 
 
@@ -277,6 +282,22 @@ public class OrganizationController {
         );
     }
 
+    @PutMapping("/update-organization-member")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SuccessResponse<UpdateOrganizationMemberResponse>> updateOrganizationMember(
+        @RequestParam("member_id")
+        @NotNull(message = "Member id is required") Long memberId,
+        @Valid @RequestBody UpdateOrganizationMemberRequest request
+    ) {
+        UpdateOrganizationMemberResponse response = toUpdateOrganizationMemberResponse(
+            updateOrganizationMemberUseCase.execute(memberId, request)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Update organization member successfully", response)
+        );
+    }
+
     @DeleteMapping("/remove-organization-member")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<Void>> removeOrganizationMember(
@@ -419,6 +440,20 @@ public class OrganizationController {
 
     private AddOrganizationMemberResponse toAddOrganizationMemberResponse(AddOrganizationMemberResult result) {
         return new AddOrganizationMemberResponse(
+            result.userId(),
+            result.memberId(),
+            result.fullName(),
+            result.email(),
+            result.phoneNumber(),
+            result.organizationRole(),
+            result.organizationDepartment(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    private UpdateOrganizationMemberResponse toUpdateOrganizationMemberResponse(UpdateOrganizationMemberResult result) {
+        return new UpdateOrganizationMemberResponse(
             result.userId(),
             result.memberId(),
             result.fullName(),
